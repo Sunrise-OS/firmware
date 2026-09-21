@@ -1,0 +1,37 @@
+[package]
+name = "tinted-boot-platform"
+description = "tinted-boot's Patina platform for QEMU's AArch64 virt machine"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[lib]
+name = "tinted_boot_platform"
+path = "src/lib.rs"
+
+# The EFI entry point is for the EDK2-hosted image, which needs a UEFI target and
+# an allocator the DXE core brings with it. Everything else — the platform
+# itself, which this repository's own firmware links — is the library.
+[[bin]]
+name = "tinted-armvirt-dxe-core"
+path = "src/bin/edk2-dxe-core.rs"
+required-features = ["edk2"]
+
+[features]
+edk2 = []
+
+[dependencies]
+patina = "23"
+patina_acpi = "23"
+patina_adv_logger = "23"
+patina_dxe_core = "23"
+patina_ffs_extractors = "23"
+patina_smbios = "23"
+patina_stacktrace = "23"
+log = { version = "0.4", default-features = false, features = ["release_max_level_info"] }
+# The storage stack: virtio-blk over PCI, GPT, and FAT, published as Block I/O and
+# Simple File System so BDS and applications can read the ESP.
+virtio-drivers = "0.13"
+hadris-fat = { version = "2", default-features = false, features = ["alloc", "read", "sync", "lfn"] }
+hadris-io = { version = "2", default-features = false }
+spin = { version = "0.12", default-features = false, features = ["spin_mutex"] }

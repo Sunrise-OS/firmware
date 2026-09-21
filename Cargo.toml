@@ -1,0 +1,50 @@
+[workspace]
+resolver = "3"
+members = ["firmware", "platform", "testapp", "tools/mkesp", "tools/mkimage", "tools/rompatch"]
+# The patina sources are a submodule with a workspace of their own: it is a path
+# dependency, not a member.
+exclude = ["third_party/patina"]
+
+# Patina comes from the pinned submodule rather than from crates.io: the whole
+# framework is then one set of sources at one commit. The submodule carries one
+# patch on top of that commit, which `scripts/prepare-patina.sh` applies.
+[patch.crates-io]
+patina = { path = "third_party/patina/sdk/patina" }
+patina_acpi = { path = "third_party/patina/components/patina_acpi" }
+patina_adv_logger = { path = "third_party/patina/components/patina_adv_logger" }
+patina_debugger = { path = "third_party/patina/core/patina_debugger" }
+patina_dxe_core = { path = "third_party/patina/patina_dxe_core" }
+patina_ffs = { path = "third_party/patina/sdk/patina_ffs" }
+patina_ffs_extractors = { path = "third_party/patina/sdk/patina_ffs_extractors" }
+patina_internal_core = { path = "third_party/patina/core/patina_internal_core" }
+patina_internal_cpu = { path = "third_party/patina/core/patina_internal_cpu" }
+patina_macro = { path = "third_party/patina/sdk/patina_macro" }
+patina_paging = { path = "third_party/patina-paging" }
+# patina_mm = { path = "third_party/patina/components/patina_mm" }
+# patina_performance = { path = "third_party/patina/components/patina_performance" }
+# patina_samples = { path = "third_party/patina/components/patina_samples" }
+patina_smbios = { path = "third_party/patina/components/patina_smbios" }
+patina_stacktrace = { path = "third_party/patina/core/patina_stacktrace" }
+patina_test = { path = "third_party/patina/components/patina_test" }
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[profile.release]
+opt-level = "s"
+debug = false
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.dev]
+panic = "abort"
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+debug = "line-tables-only"
+

@@ -1,0 +1,13 @@
+diff --git a/patina_dxe_core/src/pi_dispatcher/image.rs b/patina_dxe_core/src/pi_dispatcher/image.rs
+index 61103f47..787ab907 100644
+--- a/patina_dxe_core/src/pi_dispatcher/image.rs
++++ b/patina_dxe_core/src/pi_dispatcher/image.rs
+@@ -492,7 +492,7 @@ impl ImageData {
+             .expect("Did not find MemoryAllocationModule Hob for DxeCore. Use patina::guid::DXE_CORE_ID as FFS GUID.");
+ 
+         let mut image_info = empty_image_info();
+-        image_info.system_table = core::ptr::from_mut(system_table) as *mut efi::SystemTable;
++        image_info.system_table = system_table.as_mut_ptr();
+         image_info.image_base = dxe_core_hob.alloc_descriptor.memory_base_address as *mut c_void;
+         image_info.image_size = dxe_core_hob.alloc_descriptor.memory_length;
+ 

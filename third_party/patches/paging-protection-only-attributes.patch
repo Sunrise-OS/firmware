@@ -1,0 +1,15 @@
+diff --git a/src/aarch64/structs.rs b/src/aarch64/structs.rs
+index c125b61..bc94c64 100644
+--- a/src/aarch64/structs.rs
++++ b/src/aarch64/structs.rs
+@@ -131,8 +131,8 @@ impl PageTableEntryAArch64 {
+                 self.set_shareable(3);
+             }
+             _ => {
+-                log::error!("Invalid memory attributes: {attributes:?}");
+-                return Err(PtError::IncompatibleMemoryAttributes);
++                self.set_attribute_index(3);
++                self.set_shareable(3);
+             }
+         }
+ 

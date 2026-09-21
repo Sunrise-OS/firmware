@@ -1,0 +1,30 @@
+# The firmware is a freestanding aarch64 ELF linked by mold, which speaks the
+# target's own dialect: aarch64elf. It is invoked directly rather than through
+# clang, because clang on this host resolves `-fuse-ld` to the system `ld`,
+# which is macOS's Mach-O linker, not an ELF one. The image base, entry point,
+# and section collection come from build.rs; see the comment there for why there
+# is no linker script.
+# The firmware links Patina, and Patina reaches `allocator_api` and `c_variadic`
+# through `RUSTC_BOOTSTRAP`, which is how Patina is built upstream: on stable,
+# with the unstable features it needs gated to the ones it has accepted. Its DXE
+# core verifies that arrangement at build time and refuses to build without it.
+[env]
+RUSTC_BOOTSTRAP = "1"
+PATINA_CONFIG_VERSION = "1"
+
+[target.aarch64-unknown-none]
+rustflags = [
+  "-C", "linker=mold",
+  "-C", "linker-flavor=ld",
+  "-C", "relocation-model=static",
+  "-C", "force-frame-pointers=yes",
+]
+
+# The DXE core image is an EFI boot service driver: that is what both EDK2's
+# dispatcher and the firmware volume that carries it expect.
+[target.aarch64-unknown-uefi]
+rustflags = [
+  "-C", "link-arg=/subsystem:efi_boot_service_driver",
+  "-C", "force-frame-pointers",
+  "-C", "force-unwind-tables",
+]

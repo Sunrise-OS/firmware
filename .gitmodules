@@ -1,0 +1,6 @@
+[submodule "third_party/patina"]
+	path = third_party/patina
+	url = https://github.com/Sunrise-OS/patina
+[submodule "third_party/patina-paging"]
+	path = third_party/patina-paging
+	url = https://github.com/OpenDevicePartnership/patina-paging

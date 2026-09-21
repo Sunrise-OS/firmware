@@ -1,0 +1,23 @@
+[package]
+name = "tinted-uefi-firmware"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "tinted-boot-aarch64"
+path = "src/main.rs"
+
+[dependencies]
+r-efi = "7"
+aarch64-cpu = "11"
+aarch64-paging = "0.12"
+hadris-fat = { version = "2", default-features = false, features = ["alloc", "read", "sync", "lfn"] }
+hadris-io = { version = "2", default-features = false }
+spin = { version = "0.12", default-features = false, features = ["spin_mutex"] }
+bitflags = { version = "2", default-features = false }
+linked_list_allocator = { version = "0.10", default-features = false }
+virtio-drivers = "0.13"
+object = { version = "0.40", default-features = false, features = ["read"] }
+patina = "23"
+patina_ffs = "23"

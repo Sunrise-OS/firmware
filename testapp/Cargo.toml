@@ -1,0 +1,12 @@
+[package]
+name = "tinted-boot-testapp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "bootaa64"
+path = "src/main.rs"
+
+[dependencies]
+r-efi = "7"

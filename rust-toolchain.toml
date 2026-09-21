@@ -1,0 +1,9 @@
+[toolchain]
+# Patina 23 is written against the variadic-argument interface as it stood while
+# `c_variadic` was unstable; 1.99 stabilized the feature with the method renamed.
+# 1.98 is therefore the newest release this firmware builds on, and
+# `scripts/prepare-patina.sh` carries the small patch that keeps the rest of it
+# compiling where a newer toolchain is used.
+channel = "nightly"
+targets = ["aarch64-unknown-none", "aarch64-unknown-uefi"]
+components = ["rust-src", "rust-analyzer"]

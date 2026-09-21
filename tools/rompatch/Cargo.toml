@@ -1,0 +1,9 @@
+[package]
+name = "rompatch"
+description = "Put a Patina platform's DXE core into a QEMU firmware ROM"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+lzma-rust2 = { version = "0.21", default-features = false, features = ["std", "encoder"] }
