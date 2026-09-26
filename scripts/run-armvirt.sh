@@ -43,26 +43,54 @@ set -- \
 # boot stages do not touch the interrupt controller, so this is the one place
 # that decides.
 #
-# HVF runs the guest on the host's own cores, so it takes the host's CPU model
-# and rejects any other; TCG is a model of a machine and is given the model this
-# platform's addresses and tables are written for, so a run is the same wherever
-# it happens. The firmware itself runs the same either way - the acceleration is
-# what changes, and with it whether the core's undefined behaviour is reported
-# (HVF) or quietly tolerated (TCG).
-case "${ACCEL:-tcg}" in
-    hvf) cpu=host ;;
-    *) cpu=cortex-a57 ;;
-esac
+# HVF and KVM run the guest on the host's own cores, so they take the host's CPU
+# model and reject any other; TCG is a model of a machine and is given the model
+# this platform's addresses and tables are written for, so a run is the same
+# wherever it happens. The firmware itself runs the same either way - the
+# acceleration is what changes, and with it whether the core's undefined
+# behaviour is reported (HVF, KVM) or quietly tolerated (TCG).
+#
+# ACCEL picks one explicitly; otherwise it is detected. HVF only exists on an
+# arm64 macOS host, KVM only on an arm64 Linux host with a usable /dev/kvm, and
+# each only helps if this QEMU was built with it - anything else (an Intel Mac,
+# an aarch64 container without /dev/kvm, a stripped build) falls back to TCG.
+qemu=${QEMU:-qemu-system-aarch64}
 #
 # The host QEMU links against dylibs in /usr/local/lib but carries no rpath, so
-# the loader has to be told where they are.
-DYLD_FALLBACK_LIBRARY_PATH=${DYLD_FALLBACK_LIBRARY_PATH:-/usr/local/lib} \
-exec "${QEMU:-qemu-system-aarch64}" \
+# the loader has to be told where they are. This has to be in place for the
+# probe below as well as for the run itself.
+DYLD_FALLBACK_LIBRARY_PATH=${DYLD_FALLBACK_LIBRARY_PATH:-/usr/local/lib}
+export DYLD_FALLBACK_LIBRARY_PATH
+
+accel=${ACCEL:-}
+if [ -z "$accel" ]; then
+    accel=tcg
+    case "$(uname -s):$(uname -m)" in
+        Darwin:arm64)
+            if "$qemu" -accel help 2>/dev/null | grep -q hvf; then
+                accel=hvf
+            fi
+            ;;
+        Linux:aarch64)
+            if [ -c /dev/kvm ] && [ -r /dev/kvm ] && [ -w /dev/kvm ] &&
+                "$qemu" -accel help 2>/dev/null | grep -q kvm; then
+                accel=kvm
+            fi
+            ;;
+    esac
+fi
+printf 'accel=%s\n' "$accel"
+case "$accel" in
+    hvf | kvm) cpu=host ;;
+    *) cpu=cortex-a57 ;;
+esac
+
+exec "$qemu" \
     -machine virt,acpi=off,gic-version=3 \
     -cpu "$cpu" \
     -smp 4 \
     -m 4G \
-    -accel "${ACCEL:-tcg}" \
+    -accel "$accel" \
     -device virtio-gpu-rutabaga-pci,gfxstream-vulkan=on,blob=on,hostmem=256M \
     -display none \
     -no-reboot \
