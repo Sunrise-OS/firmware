@@ -31,7 +31,10 @@ struct Source {
 
 impl Source {
     fn open(device: &pci::PciDevice) -> Option<Self> {
-        if !device.is_virtio() {
+        // PciTransport::drop resets its device. Filter IDs BEFORE opening a
+        // transport so probing cannot reset an already-live disk or GPU.
+        let id = (device.read32(0) >> 16) as u16;
+        if !device.is_virtio() || !matches!(id, 0x1005 | 0x1044) {
             return None;
         }
         device.enable();
