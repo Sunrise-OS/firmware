@@ -29,6 +29,7 @@ mod boot;
 mod console;
 mod gop;
 mod publish;
+mod rng;
 pub mod smbios;
 mod storage;
 mod tables;
@@ -110,6 +111,7 @@ impl ComponentInfo for TintedBoot {
         add.component(console::Console);
         // Disks, partitions, and FAT volumes, which BDS boots from.
         add.component(storage::Storage);
+        add.component(rng::Rng);
         // Virtio-gpu scanout and EFI Graphics Output Protocol.
         add.component(gop::Gop);
         // SMBIOS: the provider owns the table, the platform owns the records.
