@@ -1,0 +1,34 @@
+diff --git a/patina_dxe_core/src/protocols.rs b/patina_dxe_core/src/protocols.rs
+index 957d121b..b6a9da03 100644
+--- a/patina_dxe_core/src/protocols.rs
++++ b/patina_dxe_core/src/protocols.rs
+@@ -617,12 +617,12 @@ unsafe extern "C" fn install_multiple_protocol_interfaces(handle: *mut efi::Hand
+     loop {
+         //consume the protocol, break the loop if it is null.
+         // SAFETY: Variadic argument list is controlled by the caller and accessed in order.
+-        let protocol: *mut efi::Guid = unsafe { args.arg() };
++        let protocol: *mut efi::Guid = unsafe { args.next_arg() };
+         if protocol.is_null() {
+             break;
+         }
+         // SAFETY: Variadic argument list is controlled by the caller and accessed in order.
+-        let interface: *mut c_void = unsafe { args.arg() };
++        let interface: *mut c_void = unsafe { args.next_arg() };
+         // SAFETY: protocol is checked for null above before dereferencing.
+         //         The caller-supplied pointer may be unaligned.
+         if unsafe { protocol.read_unaligned() } == efi::protocols::device_path::PROTOCOL_GUID
+@@ -682,12 +682,12 @@ unsafe extern "C" fn uninstall_multiple_protocol_interfaces(handle: efi::Handle,
+     let mut interfaces_to_uninstall = Vec::new();
+     loop {
+         // SAFETY: Variadic argument list is controlled by the caller and accessed in order.
+-        let protocol: *mut efi::Guid = unsafe { args.arg() };
++        let protocol: *mut efi::Guid = unsafe { args.next_arg() };
+         if protocol.is_null() {
+             break;
+         }
+         // SAFETY: Variadic argument list is controlled by the caller and accessed in order.
+-        let interface: *mut c_void = unsafe { args.arg() };
++        let interface: *mut c_void = unsafe { args.next_arg() };
+         interfaces_to_uninstall.push((protocol, interface));
+     }
+ 
